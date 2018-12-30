@@ -88,7 +88,11 @@ class App extends React.Component {
     return (
       <div id="drum-machine" className="drum-machine">
         <Display display={this.state.display} />
-        <DrumPads soundBank={this.state.soundBank} />
+        <DrumPads
+          soundBank={this.state.soundBank}
+          updateDisplay={this.displaySoundName}
+          clearDisplay={this.clearDisplay}
+        />
       </div>
     );
   }
@@ -96,6 +100,26 @@ class App extends React.Component {
 
 function Display(props) {
   return <div id="display">{props.dislpay}</div>;
+}
+class DrumPads extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var drumPads = this.props.soundBank.map(sound => {
+      return (
+        <DrumPad
+          key={sound.key}
+          char={sound.key}
+          clip={sound.url}
+          clipId={sound.id}
+          updateDisplay={this.props.updateDisplay}
+          clearDisplay={this.props.clearDisplay}
+        />
+      );
+    });
+    return <div className="pad-bank">{drumPads}</div>;
+  }
 }
 
 class DrumPad extends React.Component {
@@ -105,6 +129,9 @@ class DrumPad extends React.Component {
     this.state = {
       style: inactiveStyle
     };
+
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.activatePad = this.activatePad.bind(this);
   }
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyPress);
@@ -113,7 +140,8 @@ class DrumPad extends React.Component {
     document.removeEventListener("keydown", this.handleKeyPress);
   }
   handleKeyPress(event) {
-    if (event.key === this.props.key) {
+    if (event.key.toUpperCase() === this.props.char) {
+      this.props.updateDisplay(this.props.clipId);
       this.playSound();
     }
   }
@@ -126,45 +154,31 @@ class DrumPad extends React.Component {
     });
   }
   playSound() {
-    var audio = document.getElementById(this.props.key);
+    var audio = document.getElementById(this.props.clipId);
 
     audio.currentTime = 0;
     audio.play();
     this.activatePad();
     setTimeout(() => {
       this.activatePad();
-    }, 100);
+    }, 1000);
   }
   render() {
     return (
       <div
-        id={this.props.clipId}
         onClick={this.playSound}
         className="drump-pad"
         style={this.state.style}
       >
-        <audio className="clip" id={this.props.key} src={this.props.clip} />
+        <audio
+          id={this.props.clipId}
+          className="clip"
+          src={this.props.clip}
+          preload="auto"
+        />
         {this.props.key}
       </div>
     );
-  }
-}
-class DrumPads extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    var drumPads = this.props.soundBank.map((sound, index, soundBank) => {
-      return (
-        <DrumPad
-          key={soundBank[index].key}
-          clip={soundBank[index].url}
-          clipId={soundBank[index].id}
-          updateDisplay={this.props.updateDisplay}
-        />
-      );
-    });
-    return <div className="pad-bank">{drumPads}</div>;
   }
 }
 ReactDOM.render(<App />, document.getElementById("root"));

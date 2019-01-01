@@ -52,15 +52,14 @@ var sounds = [
 
 const activeStyle = {
   backgroundColor: "orange",
-  boxShadow: "0 3px orange",
-  height: 77,
-  marginTop: 13
+  borderStyle: "inset",
+  color: "black"
 };
 
 const inactiveStyle = {
-  backgroundColor: "grey",
-  marginTop: 10,
-  boxShadow: "3px 3px 5px black"
+  backgroundColor: "darkgray",
+  color: "white",
+  borderStyle: "outset"
 };
 
 class App extends React.Component {
@@ -154,13 +153,18 @@ class DrumPad extends React.Component {
   }
 
   activatePad() {
-    this.setState({
-      style:
-        this.state.style.backgroundColor === "orange"
-          ? inactiveStyle
-          : activeStyle
-    });
+    if (this.state.style.backgroundColor === "orange") {
+      this.setState({
+        style: inactiveStyle
+      });
+      this.props.clearDisplay();
+    } else {
+      this.setState({
+        style: activeStyle
+      });
+    }
   }
+
   playSound() {
     var audio = document.getElementById(this.props.char);
 

@@ -99,17 +99,17 @@ class App extends React.Component {
 }
 
 function Display(props) {
-  return <div id="display">{props.dislpay}</div>;
+  return <div id="display">{props.display}</div>;
 }
 class DrumPads extends React.Component {
   constructor(props) {
     super(props);
   }
   render() {
-    var drumPads = this.props.soundBank.map(sound => {
+    var drumPads = this.props.soundBank.map((sound, index) => {
       return (
         <DrumPad
-          key={sound.key}
+          key={index}
           char={sound.key}
           clip={sound.url}
           clipId={sound.id}
@@ -132,6 +132,7 @@ class DrumPad extends React.Component {
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.activatePad = this.activatePad.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyPress);
@@ -145,6 +146,13 @@ class DrumPad extends React.Component {
       this.playSound();
     }
   }
+  handleClick(event) {
+    if (event.target.className.includes("drum-pad")) {
+      this.props.updateDisplay(this.props.clipId);
+      this.playSound();
+    }
+  }
+
   activatePad() {
     this.setState({
       style:
@@ -154,7 +162,7 @@ class DrumPad extends React.Component {
     });
   }
   playSound() {
-    var audio = document.getElementById(this.props.clipId);
+    var audio = document.getElementById(this.props.char);
 
     audio.currentTime = 0;
     audio.play();
@@ -165,19 +173,20 @@ class DrumPad extends React.Component {
   }
   render() {
     return (
-      <div
-        onClick={this.playSound}
-        className="drump-pad"
+      <button
+        id={this.props.clipId}
+        onClick={this.handleClick}
+        className="drum-pad"
         style={this.state.style}
       >
         <audio
-          id={this.props.clipId}
+          id={this.props.char}
           className="clip"
           src={this.props.clip}
           preload="auto"
         />
-        {this.props.key}
-      </div>
+        {this.props.char}
+      </button>
     );
   }
 }
